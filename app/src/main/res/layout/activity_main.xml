@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical" >
+
+    <com.example.onion.charttest.MyChart
+        android:id="@+id/chart"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"/>
+    <Button
+        android:id="@+id/gogoOnion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="hahaha"/>
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal" >-->
+
+        <!--<Button-->
+            <!--android:id="@+id/walkning_button"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="Walking" />-->
+
+        <!--<Button-->
+            <!--android:id="@+id/running_button"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="Running" />-->
+
+        <!--<Button-->
+            <!--android:id="@+id/cycling_button"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="Cycling" />-->
+    <!--</LinearLayout>-->
+
+    <!--<com.example.onion.charttest.ChartView-->
+        <!--android:id="@+id/linechart"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_weight="1"-->
+        <!--android:background="#444"-->
+        <!--android:padding="16dp" />-->
+
+    <!--<TextView-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_weight="1"-->
+        <!--android:gravity="center"-->
+        <!--android:text="Line chart view" />-->
+
+</LinearLayout>
