@@ -10,56 +10,22 @@ import android.graphics.PointF;
 
 public class DataPoint {
 
-    private PointF mPosition;
-
-    private PointF mCurrentPosition;
-
-    private PointF mAnimatingPosition;
-
-    private PointF mTargetPosition;
-
-    private boolean inPosition;
+    private float mPosition;
 
     private int mCountdown;
 
-    public DataPoint(PointF position) {
+    private int mCurrentCount;
+
+    public DataPoint(float position) {
         mPosition = position;
     }
 
-    public DataPoint(float x, float y) {
-        mPosition = new PointF(x, y);
-    }
-
-    public PointF getPosition() {
+    public float getPosition() {
         return mPosition;
     }
 
-    public void setPosition(PointF position) {
+    public void setPosition(float position) {
         mPosition = position;
-    }
-
-    public PointF getAnimatingPosition() {
-        return mAnimatingPosition;
-    }
-
-    public void setAnimatingPosition(PointF animatingPosition) {
-        mAnimatingPosition = animatingPosition;
-    }
-
-    public PointF getTargetPosition() {
-        return mTargetPosition;
-    }
-
-    public void setTargetPosition(PointF targetPosition) {
-        mTargetPosition = targetPosition;
-    }
-
-    public boolean isInPosition() {
-        return inPosition;
-    }
-
-    public void setInPosition(boolean inPosition) {
-        this.inPosition = inPosition;
     }
 
     public int getCountdown() {
@@ -68,16 +34,13 @@ public class DataPoint {
 
     public void setCountdown(int countdown) {
         mCountdown = countdown;
-        if (countdown == 0) {
-            inPosition = true;
-        }
     }
 
-    public PointF getCurrentPosition() {
-        return mCurrentPosition;
+    public int getCurrentCount() {
+        return mCurrentCount;
     }
 
-    public void setCurrentPosition(PointF currentPosition) {
-        mCurrentPosition = currentPosition;
+    public void setCurrentCount(int currentCount) {
+        mCurrentCount = currentCount;
     }
 }

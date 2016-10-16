@@ -25,12 +25,12 @@ public class MainActivity extends AppCompatActivity {
 
     private List<DataPoint> getData() {
         List<DataPoint> dataPoints = new ArrayList<>();
-        dataPoints.add(new DataPoint(10, 100));
-        dataPoints.add(new DataPoint(40, 150));
-        dataPoints.add(new DataPoint(70, 400));
-        dataPoints.add(new DataPoint(100, 420));
-        dataPoints.add(new DataPoint(130, 500));
-        dataPoints.add(new DataPoint(160, 1000));
+        dataPoints.add(new DataPoint(100));
+        dataPoints.add(new DataPoint(150));
+        dataPoints.add(new DataPoint(400));
+        dataPoints.add(new DataPoint(420));
+        dataPoints.add(new DataPoint(500));
+        dataPoints.add(new DataPoint(1000));
         return dataPoints;
     }
 

@@ -31,6 +31,8 @@ public class MyChart extends View {
 
     private int mAnimationCounter;
 
+    private int mDuration;
+
     public MyChart(Context context, AttributeSet attrs) {
         super(context, attrs);
         initialize();
@@ -91,23 +93,29 @@ public class MyChart extends View {
     private Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
-            if (mAnimationCounter < mDataPoints.size()) {
-                mAnimationPath.lineTo(mDataPoints.get(mAnimationCounter).getCurrentPosition().x + mDataPoints.get(mAnimationCounter).getAnimatingPosition().x, getHeight() - mDataPoints.get(mAnimationCounter).getCurrentPosition().y - mDataPoints.get(mAnimationCounter).getAnimatingPosition().y);
-                int countdown = mDataPoints.get(mAnimationCounter).getCountdown() - 1;
-                mDataPoints.get(mAnimationCounter).setCurrentPosition(new PointF(mDataPoints.get(mAnimationCounter).getCurrentPosition().x + mDataPoints.get(mAnimationCounter).getAnimatingPosition().x, getHeight() - mDataPoints.get(mAnimationCounter).getCurrentPosition().y - mDataPoints.get(mAnimationCounter).getAnimatingPosition().y));
-                mDataPoints.get(mAnimationCounter).setCountdown(countdown);
+            if (mAnimationCounter >= mDataPoints.size()) {
+                animating = false;
+                invalidate();
+                return;
             }
 
-            if (mAnimationCounter < mDataPoints.size()) {
-                postDelayed(this, 20);
-                animating = true;
-            } else {
-                animating = false;
-            }
+            float max = getMax(mDataPoints);
+            DataPoint dataPoint = mDataPoints.get(mAnimationCounter);
+            int countdown = dataPoint.getCountdown();
+            int currentCount = dataPoint.getCurrentCount();
+            float xDiff = currentCount * getXAnimatingPosition(mAnimationCounter);
+            float xLineToPosition = getXPos(mAnimationCounter) + xDiff;
+            float yDiff = currentCount * getYAnimatingPosition(mAnimationCounter, max);
+            float yLineToPosition = getYPos(dataPoint.getPosition(), getMax(mDataPoints)) + yDiff;
+            mAnimationPath.lineTo(xLineToPosition, yLineToPosition);
+            currentCount++;
+            dataPoint.setCurrentCount(currentCount);
+
             invalidate();
-            if (mAnimationCounter < mDataPoints.size() && mDataPoints.get(mAnimationCounter).isInPosition()) {
+            if (currentCount == countdown) {
                 mAnimationCounter++;
             }
+            postDelayed(this, 20);
         }
     };
 
@@ -158,50 +166,111 @@ public class MyChart extends View {
     }
 
     private void drawLineChart(Canvas canvas) {
+        float max = getMax(mDataPoints);
+
         Paint paint = new Paint();
         paint.setColor(Color.BLUE);
         paint.setStrokeWidth(10);
         paint.setStyle(Paint.Style.STROKE);
+
         Path path = new Path();
         path.moveTo(0, getHeight());
         for (int i = 0; i < mDataPoints.size(); i++) {
-            path.lineTo(mDataPoints.get(i).getPosition().x, getHeight() - mDataPoints.get(i).getPosition().y);
+            DataPoint dataPoint = mDataPoints.get(i);
+            path.lineTo(getXPos(i), getYPos(dataPoint.getPosition(), max));
         }
         canvas.drawPath(path, paint);
     }
 
     public void setDataPoints(List<DataPoint> dataPoints) {
         mDataPoints = dataPoints;
-        for (int i = 0; i < dataPoints.size(); i++) {
-            dataPoints.get(i).setTargetPosition(new PointF(dataPoints.get(i < dataPoints.size() - 1 ? i + 1 : i).getPosition().x, dataPoints.get(i < dataPoints.size() - 1 ? i + 1 : i).getPosition().y));
-        }
-        for (DataPoint dataPoint : dataPoints) {
-            dataPoint.setCurrentPosition(new PointF(dataPoint.getPosition().x, dataPoint.getPosition().y));
-        }
     }
 
     public void setDuration(int millisecond) {
-        if (mDataPoints.size() == 0 || millisecond == 0) {
-            return;
-        }
-
-        int countdownPerDataPoint = millisecond / mDataPoints.size() / 20;
-        for (DataPoint dataPoint : mDataPoints) {
-            dataPoint.setCountdown(countdownPerDataPoint);
-            if (countdownPerDataPoint == 0) {
-                dataPoint.setAnimatingPosition(new PointF(0, 0));
-            } else {
-                dataPoint.setAnimatingPosition(new PointF((dataPoint.getTargetPosition().x - dataPoint.getPosition().x) / countdownPerDataPoint,
-                        (dataPoint.getTargetPosition().y - dataPoint.getPosition().y) / countdownPerDataPoint));
-            }
-        }
+        mDuration = millisecond;
     }
 
     public void startAnimation() {
         removeCallbacks(mRunnable);
+
+        for (DataPoint dataPoint : mDataPoints) {
+            dataPoint.setCountdown(mDuration / mDataPoints.size() / 20);
+            dataPoint.setCurrentCount(0);
+        }
         mAnimationCounter = 0;
         post(mRunnable);
+        animating = true;
         mAnimationPath = new Path();
         mAnimationPath.moveTo(0, getHeight());
+    }
+
+    private float getMax(List<DataPoint> array) {
+        if (array.size() == 0) {
+            return 0;
+        }
+
+        float max = array.get(0).getPosition();
+        for (int i = 1; i < array.size(); i++) {
+            if (array.get(i).getPosition() > max) {
+                max = array.get(i).getPosition();
+            }
+        }
+        return max;
+    }
+
+    private float getYPos(float value, float maxValue) {
+        float height = getHeight() - getPaddingTop() - getPaddingBottom();
+
+        // scale it to the view size
+        value = (value / maxValue) * height;
+
+        // invert it so that higher values have lower y
+        value = height - value;
+
+        // offset it to adjust for padding
+        value += getPaddingTop();
+
+        return value;
+    }
+
+    private float getXPos(float value) {
+        float width = getWidth() - getPaddingLeft() - getPaddingRight();
+        float maxValue = mDataPoints.size() - 1;
+
+        // scale it to the view size
+        value = (value / maxValue) * width;
+
+        // offset it to adjust for padding
+        value += getPaddingLeft();
+
+        return value;
+    }
+
+    private float getXAnimatingPosition(int index) {
+        if (index > mDataPoints.size() - 1) {
+            return 0;
+        }
+
+        int countdownPerDataPoint = mDuration / mDataPoints.size() / 20;
+        if (countdownPerDataPoint > 0) {
+            return (getXPos(index + 1) - getXPos(index)) / countdownPerDataPoint;
+        }
+        return 0;
+    }
+
+    private float getYAnimatingPosition(int index, float maxValue) {
+        if (index >= mDataPoints.size() - 1) {
+            return 0;
+        }
+
+        int countdownPerDataPoint = mDuration / mDataPoints.size() / 20;
+        if (countdownPerDataPoint > 0) {
+            DataPoint nextDataPoint = mDataPoints.get(index + 1);
+            DataPoint currentDataPoint = mDataPoints.get(index);
+            float nextPosition = getYPos(nextDataPoint.getPosition(), maxValue);
+            float currentPosition = getYPos(currentDataPoint.getPosition(), maxValue);
+            return (nextPosition - currentPosition) / countdownPerDataPoint;
+        }
+        return 0;
     }
 }
